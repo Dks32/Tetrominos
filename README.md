@@ -4,7 +4,8 @@ Simple clon de tetris hecho con Python y Raylib.
 
 ## ToDo
 
-- [ ] Añadir modo pausa
+- [ ] Estado de Game Over
+- [ ] Añadir Pausa al juego
 - [ ] Menú de inicio
 - [ ] Mostrar siguiente pieza
 - [ ] Puntaje
@@ -16,6 +17,13 @@ Simple clon de tetris hecho con Python y Raylib.
 - [ ] Audio
 	- [ ] Efectos de sonido
 	- [ ] Música de fondo
+
+## Sugerencias
+
+- [ ] Paletas de colores
+- [ ] Paletas de colores por nivel
+- [ ] Modos de colores aleatorio
+- [ ] Modos de colores animado
 
 ## Ejecutar
 
@@ -46,4 +54,3 @@ pip install -r requirements.txt
 ~~~bash
 python main.py
 ~~~
-
