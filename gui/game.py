@@ -28,7 +28,7 @@ class Game():
 
 	def draw_frame(self):
 		pr.begin_drawing()
-		pr.clear_background(pr.BLACK)
+		pr.clear_background(COLORES[0])
 
 		# Dibujar borde del tablero
 		pr.draw_rectangle_lines(
