@@ -3,12 +3,13 @@ import pyray as pr
 from func import Tablero, COLORES, Pieza, PIEZAS
 
 
+VELOCIDAD_BASE = 1
 
 
 class Game():
 	def __init__(self):
 		pr.init_window(600, 800, 'Tetrominos')
-		pr.set_target_fps(120)
+		pr.set_target_fps(60)
 		pr.set_exit_key(0)
 
 		# Definición de los menues
@@ -58,11 +59,9 @@ class Game():
 		self.tablero_width = self.tablero.get_columnas() * self.block_tam
 		self.tablero_height = self.tablero.get_filas() * self.block_tam
 
-		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
 
 		self.tiempo = None
 		self.pieza = None
-		self.velocidad = .5
 		self.puntaje = 0
 		self.lineas = 0
 		self.nivel = 0
@@ -70,6 +69,9 @@ class Game():
 		self.juego_activo = True
 		self.game_over = False
 		self.pause_mode = False
+		self.velocidad = self.calcular_velocidad()
+
+		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
 
 
 	def mainloop(self):
@@ -177,21 +179,21 @@ class Game():
 		# 	print(tecla)
 
 		# ENTRADAS DE TECLADO
-		if pr.is_key_pressed(263): # Izquierda
+		if pr.is_key_pressed(263) or pr.is_key_pressed_repeat(263): # Izquierda
 			mov = self.pieza.mover(-1, 0)
 			self.pieza.bloquear = False
-		if pr.is_key_pressed(262): # Derecha
+		if pr.is_key_pressed(262) or pr.is_key_pressed_repeat(262): # Derecha
 			mov = self.pieza.mover(1, 0)
 			self.pieza.bloquear = False
-		if pr.is_key_pressed(264) or self.mover_abajo: # Abajo
+		if pr.is_key_pressed(264) or pr.is_key_pressed_repeat(264) or self.mover_abajo: # Abajo
 			if self.pieza.bloquear == False and self.pieza.mover(0, 1) == False:
 				self.fijar_pieza()
 			else:
 				self.pieza.bloquear = False
-		if pr.is_key_pressed(265): # Arriba (rotación)
+		if pr.is_key_pressed(265) or pr.is_key_pressed_repeat(265): # Arriba (rotación)
 			self.pieza.bloquear = False
 			mov = self.pieza.rotar()
-		if pr.is_key_pressed(256): # Esc (pausa)
+		if pr.is_key_pressed(256) or pr.is_key_pressed_repeat(266): # Esc (pausa)
 			self.pause_mode = True
 
 
@@ -237,6 +239,11 @@ class Game():
 		self.piezas_colocadas += 1
 		self.lineas += len(lineas)
 		self.nivel = self.lineas // 10
+		self.velocidad = self.calcular_velocidad()
+
+
+	def calcular_velocidad(self):
+		return VELOCIDAD_BASE / ((self.nivel + 1) / 2)
 
 
 	def validar_mov(self, shape, pos_x, pos_y):
