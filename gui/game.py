@@ -7,7 +7,7 @@ from func import Tablero, COLORES, Pieza, PIEZAS
 class Game():
 	def __init__(self):
 		pr.init_window(600, 800, 'Tetrominos')
-		pr.set_target_fps(60)
+		pr.set_target_fps(120)
 		pr.set_exit_key(0)
 
 		self.tablero = Tablero()
@@ -29,11 +29,12 @@ class Game():
 		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
 
 		self.pause_mode = False
+		self.game_over = False
 
 
 	def mainloop(self):
 		while not pr.window_should_close():
-			if self.pause_mode:
+			if self.pause_mode or self.game_over:
 				self.update_pause()
 			else:
 				self.update()
@@ -61,14 +62,15 @@ class Game():
 				self.draw_block(x, y, self.tablero.get_block(x, y))
 
 		# Dibujar pieza actual
-		for y in range(len(self.pieza.get_shape())):
-			for x in range(len(self.pieza.get_shape()[0])):
-				offset_x = self.pieza.get_pos()[0]
-				offset_y = self.pieza.get_pos()[1]
-				self.draw_block(offset_x + x, offset_y + y, self.pieza.get_block(x, y))
+		if self.pieza != None:
+			for y in range(len(self.pieza.get_shape())):
+				for x in range(len(self.pieza.get_shape()[0])):
+					offset_x = self.pieza.get_pos()[0]
+					offset_y = self.pieza.get_pos()[1]
+					self.draw_block(offset_x + x, offset_y + y, self.pieza.get_block(x, y))
 
-		# Mostrar mensaje en la pausa
-		if self.pause_mode:
+		# Mostrar Menu (Pausa | Game Over | Menú inicial)
+		if self.pause_mode or self.game_over:
 			pr.draw_rectangle(
 				self.tablero_posx - self.block_tam//4,
 				self.tablero_posy - self.block_tam//4,
@@ -77,13 +79,13 @@ class Game():
 				pr.Color(0, 0, 0, 128))
 
 			pr.draw_text(
-					'En Pausa',
-					(pr.get_screen_width() - pr.measure_text('En Pausa', 40)) // 2,
-					pr.get_screen_height() // 2,
+					self.msg_menu,
+					(pr.get_screen_width() - pr.measure_text(self.msg_menu, 40)) // 2,
+					pr.get_screen_height() // 4,
 					40,
 					pr.Color(255, 255, 255, 192))
 
-
+		pr.draw_fps(10, 10)
 		pr.end_drawing()
 
 
@@ -150,6 +152,10 @@ class Game():
 		self.pieza = Pieza(self, choice(PIEZAS))
 		self.pieza.set_pos((self.tablero.get_columnas() - len(self.pieza.get_shape()[0])) // 2, 0)
 
+		# GAME OVER (Si no hay espacio para mover una pieza nueva)
+		self.game_over = not self.validar_mov(self.pieza.get_shape(), self.pieza.get_pos()[0], self.pieza.get_pos()[1])
+		print(self.game_over)
+
 
 	def fijar_pieza(self):
 		for y in range(len(self.pieza.get_shape())):
@@ -184,3 +190,12 @@ class Game():
 					return False
 
 		return True
+
+
+	@property
+	def msg_menu(self):
+		if self.game_over:
+			return 'Game Over!'
+		if self.pause_mode:
+			return 'En pausa'
+		return 'TETROMINOS'
