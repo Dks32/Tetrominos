@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, shuffle
 import pyray as pr
 from func import Tablero, COLORES, Pieza, PIEZAS
 
@@ -49,6 +49,8 @@ class Game():
 		self.pause_mode = True
 		self.juego_activo = False
 		self.bandera_terminar = False
+		self.show_bag = False
+		# self.show_fps = False
 
 
 	def juego_nuevo(self):
@@ -59,7 +61,8 @@ class Game():
 		self.tablero_width = self.tablero.get_columnas() * self.block_tam
 		self.tablero_height = self.tablero.get_filas() * self.block_tam
 
-
+		self.bolsa = []			# Bolsa de piezas
+		self.nuevo_set()		# Nuevo set de piezas
 		self.tiempo = None
 		self.pieza = None
 		self.puntaje = 0
@@ -87,10 +90,10 @@ class Game():
 		pr.begin_drawing()
 		pr.clear_background(COLORES[0])
 
-		# Información de juego (puntaje, lineas...)
+		# INFORMACIÓN DEL JUEGO (puntaje, lineas...)
 		self.draw_info()
 
-		# Dibujar borde del tablero
+		# BORDE DE TABLERO
 		pr.draw_rectangle_lines(
 			self.tablero_posx - self.block_tam//4,
 			self.tablero_posy - self.block_tam//4,
@@ -98,18 +101,36 @@ class Game():
 			self.tablero_height + self.block_tam//4 * 2,
 			pr.GRAY)
 
-		# Dibujar tablero
+		# TABLERO
 		for y in range(self.tablero.get_filas()):
 			for x in range(self.tablero.get_columnas()):
 				self.draw_block(x, y, self.tablero.get_block(x, y))
 
-		# Dibujar pieza actual
+		# PIEZA ACTUAL
 		if self.pieza != None:
 			for y in range(len(self.pieza.get_shape())):
 				for x in range(len(self.pieza.get_shape()[0])):
 					offset_x = self.pieza.get_pos()[0]
 					offset_y = self.pieza.get_pos()[1]
 					self.draw_block(offset_x + x, offset_y + y, self.pieza.get_block(x, y))
+
+		# PIEZAS EN LA BOLSA
+		for i in range(len(self.bolsa)):
+			pieza = self.bolsa[len(self.bolsa) - 1 - i]
+			if not (self.show_bag or i == 0):
+				continue
+			for y in range(len(pieza)):
+				for x in range(len(pieza[0])):
+					px = self.tablero_posx - (self.block_tam * 3) + (x * self.block_tam // 2)
+					py = self.tablero_posy + (i * self.block_tam * 2) + (y * self.block_tam // 2)
+					color = pieza[y][x]
+					if color > 0:
+						pr.draw_rectangle_lines(
+							px,
+							py,
+							self.block_tam // 2,
+							self.block_tam // 2,
+							pr.Color(255, 255, 255, 32))
 
 		# Mostrar Menu (Pausa | Game Over | Menú inicial)
 		if self.pause_mode or self.game_over or (not self.juego_activo):
@@ -211,9 +232,12 @@ class Game():
 
 
 	def cargar_pieza_nueva(self):
-		self.tiempo = pr.get_time()
-		self.pieza = Pieza(self, choice(PIEZAS))
+		self.pieza = Pieza(self, self.bolsa.pop())
 		self.pieza.set_pos((self.tablero.get_columnas() - len(self.pieza.get_shape()[0])) // 2, 0)
+		if len(self.bolsa) == 0:
+			self.nuevo_set()
+
+		self.tiempo = pr.get_time()
 
 		# GAME OVER (Si no hay espacio para mover una pieza nueva)
 		if not self.validar_mov(self.pieza.get_shape(), self.pieza.get_pos()[0], self.pieza.get_pos()[1]):
@@ -275,3 +299,8 @@ class Game():
 
 	def alternar_pausa(self):
 		self.pause_mode = not self.pause_mode
+
+
+	def nuevo_set(self):
+		self.bolsa = PIEZAS.copy()
+		shuffle(self.bolsa)
