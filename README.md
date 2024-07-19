@@ -1,9 +1,10 @@
-# Tetris
+# Tetrominos
 
 Simple clon de tetris hecho con Python y Raylib.
 
 ## ToDo
 
+- [ ] Añadir modo pausa
 - [ ] Menú de inicio
 - [ ] Mostrar siguiente pieza
 - [ ] Puntaje
