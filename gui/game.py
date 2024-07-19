@@ -4,40 +4,91 @@ from func import Tablero, COLORES, Pieza, PIEZAS
 
 
 
+
 class Game():
 	def __init__(self):
 		pr.init_window(600, 800, 'Tetrominos')
 		pr.set_target_fps(120)
 		pr.set_exit_key(0)
 
-		self.tablero = Tablero()
+		self.juego_nuevo()
+
+		# self.tablero = Tablero()
 		self.block_tam = 32
 		self.tablero_posx = (pr.get_screen_width() - self.tablero.get_columnas() * self.block_tam) // 2
 		self.tablero_posy = (pr.get_screen_height() - self.tablero.get_filas() * self.block_tam) // 2
 		self.tablero_width = self.tablero.get_columnas() * self.block_tam
 		self.tablero_height = self.tablero.get_filas() * self.block_tam
 
+		# self.tiempo = None
+		# self.pieza = None
+
+		# self.velocidad = .5
+
+		# self.puntaje = 0
+		# self.lineas = 0
+		# self.nivel = 0
+		# self.piezas_colocadas = 0
+		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
+
+		self.pause_mode = True
+		self.juego_activo = False
+		# self.game_over = False
+
+		# Definición de los menues
+		self.menu_inicio = [
+				{
+					'texto': 'Nuevo juego',
+					'key': 78,
+					'command': self.juego_nuevo
+				},
+				{
+					'texto': 'Cerrar',
+					'key': 88,
+					'command': self.terminar
+				}
+			]
+		self.menu_pausa = [
+				{
+					'texto': 'Continuar',
+					'key': 67,
+					'command': self.alternar_pausa
+				},
+				{
+					'texto': 'Nuevo juego',
+					'key': 78,
+					'command': self.juego_nuevo
+				},
+				{
+					'texto': 'Cerrar',
+					'key': 88,
+					'command': self.terminar
+				}
+			]
+		self.opciones = self.menu_inicio
+		self.bandera_terminar = False
+
+
+	def juego_nuevo(self):
+		self.tablero = Tablero()
 		self.tiempo = None
 		self.pieza = None
-
 		self.velocidad = .5
-
 		self.puntaje = 0
 		self.lineas = 0
 		self.nivel = 0
 		self.piezas_colocadas = 0
-		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
-
-		self.pause_mode = False
+		self.juego_activo = True
 		self.game_over = False
+		self.pause_mode = False
 
 
 	def mainloop(self):
-		while not pr.window_should_close():
-			if self.pause_mode or self.game_over:
-				self.update_pause()
+		while (not pr.window_should_close()) and (not self.bandera_terminar):
+			if self.pause_mode or self.game_over or (not self.juego_activo):
+				self.update_menu()
 			else:
-				self.update()
+				self.update_game()
 			self.draw_frame()
 
 
@@ -70,7 +121,7 @@ class Game():
 					self.draw_block(offset_x + x, offset_y + y, self.pieza.get_block(x, y))
 
 		# Mostrar Menu (Pausa | Game Over | Menú inicial)
-		if self.pause_mode or self.game_over:
+		if self.pause_mode or self.game_over or (not self.juego_activo):
 			pr.draw_rectangle(
 				self.tablero_posx - self.block_tam//4,
 				self.tablero_posy - self.block_tam//4,
@@ -85,8 +136,21 @@ class Game():
 					40,
 					pr.Color(255, 255, 255, 192))
 
+			self.draw_texto_menu()
+
 		pr.draw_fps(10, 10)
 		pr.end_drawing()
+
+
+	def draw_texto_menu(self):
+		for item in range(len(self.opciones)):
+			texto = f'[{chr(self.opciones[item]["key"])}] {self.opciones[item]["texto"]}'
+			pr.draw_text(
+					texto,
+					(pr.get_screen_width() - pr.measure_text(texto, 20)) // 2,
+					pr.get_screen_height()//2 + (item*40),
+					20,
+					pr.GRAY)
 
 
 	def draw_info(self):
@@ -109,7 +173,7 @@ class Game():
 			pass
 
 
-	def update(self):
+	def update_game(self):
 		if self.pieza == None:
 			self.cargar_pieza_nueva()
 
@@ -139,12 +203,20 @@ class Game():
 			self.pieza.bloquear = False
 			mov = self.pieza.rotar()
 		if pr.is_key_pressed(256): # Esc (pausa)
-			self.pause_mode = not self.pause_mode
+			self.pause_mode = True
 
 
-	def update_pause(self):
+	def update_menu(self):
+		self.opciones = self.menu_inicio
+		if self.juego_activo:
+			self.opciones = self.menu_pausa
+
 		if pr.is_key_pressed(256): # Esc (pausa)
-			self.pause_mode = not self.pause_mode
+			self.pause_mode = False
+
+		for opcion in self.opciones:
+			if pr.is_key_pressed((opcion['key'])):
+				opcion['command']()
 
 
 	def cargar_pieza_nueva(self):
@@ -194,6 +266,14 @@ class Game():
 	def msg_menu(self):
 		if self.game_over:
 			return 'Game Over!'
-		if self.pause_mode:
+		if self.pause_mode and self.juego_activo:
 			return 'En pausa'
 		return 'TETROMINOS'
+
+
+	def terminar(self):
+		self.bandera_terminar = True
+
+
+	def alternar_pausa(self):
+		self.pause_mode = not self.pause_mode
