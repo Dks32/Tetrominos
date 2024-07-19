@@ -50,7 +50,7 @@ class Game():
 		self.juego_activo = False
 		self.bandera_terminar = False
 		self.show_bag = False
-		# self.show_fps = False
+		self.show_fps = False
 
 
 	def juego_nuevo(self):
@@ -150,7 +150,9 @@ class Game():
 
 			self.draw_texto_menu()
 
-		pr.draw_fps(10, 10)
+		if self.show_fps:
+			pr.draw_fps(10, 10)
+
 		pr.end_drawing()
 
 
