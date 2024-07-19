@@ -5,10 +5,10 @@ Simple clon de tetris hecho con Python y Raylib.
 ## ToDo
 
 - [ ] Estado de Game Over
-- [ ] Añadir Pausa al juego
+- [x] Añadir Pausa al juego
 - [ ] Menú de inicio
 - [ ] Mostrar siguiente pieza
-- [ ] Puntaje
+- [x] Puntaje
 - [ ] Base de datos de puntajes
 - [ ] Sistema de "bolsas" para la selección de piezas
 - [ ] Mejorar gráficos
