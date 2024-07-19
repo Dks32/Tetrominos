@@ -2,6 +2,10 @@
 
 Simple clon de tetris hecho con Python y Raylib.
 
+![Tetrominos pantalla de título](/assets/imagenes/tetrominos_title.png "Pantalla de título")
+
+![Tetrominos pantalla juego](/assets/imagenes/tetrominos_game.png "Pantalla de juego")
+
 ## ToDo
 
 - [x] Estado de Game Over
