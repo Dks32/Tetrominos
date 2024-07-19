@@ -154,7 +154,6 @@ class Game():
 
 		# GAME OVER (Si no hay espacio para mover una pieza nueva)
 		self.game_over = not self.validar_mov(self.pieza.get_shape(), self.pieza.get_pos()[0], self.pieza.get_pos()[1])
-		print(self.game_over)
 
 
 	def fijar_pieza(self):
