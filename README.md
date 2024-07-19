@@ -17,6 +17,12 @@ Simple clon de tetris hecho con Python y Raylib.
 - [ ] Audio
 	- [ ] Efectos de sonido
 	- [ ] Música de fondo
+- [ ] Modos de juego
+	- [ ] Moderno
+		- [ ] Piezas fantasma
+		- [ ] TSpin
+	- [ ] Clásico
+	- [ ] Multijugador
 
 ## Sugerencias
 
