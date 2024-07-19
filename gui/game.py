@@ -119,11 +119,11 @@ class Game():
 			self.tiempo = tiempo
 			self.mover_abajo = True
 
-		# Entradas por teclado
-		tecla = pr.get_key_pressed()
-		if tecla != 0:
-			print(tecla)
+		# Esto solo lo utilizo para obtener los códigos de teclas
+		# if pr.get_key_pressed() != 0:
+		# 	print(tecla)
 
+		# ENTRADAS DE TECLADO
 		if pr.is_key_pressed(263): # Izquierda
 			mov = self.pieza.mover(-1, 0)
 			self.pieza.bloquear = False
@@ -175,7 +175,6 @@ class Game():
 		self.piezas_colocadas += 1
 		self.lineas += len(lineas)
 		self.nivel = self.lineas // 10
-		# print(f'[{len(lineas)}]{lineas}')
 
 
 	def validar_mov(self, shape, pos_x, pos_y):
