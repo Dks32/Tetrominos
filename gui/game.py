@@ -6,7 +6,7 @@ from func import Tablero, COLORES, Pieza, PIEZAS
 
 class Game():
 	def __init__(self):
-		pr.init_window(600, 800, 'DK Tetris')
+		pr.init_window(600, 800, 'Tetrominos')
 		self.tablero = Tablero()
 		self.block_tam = 24
 		self.tablero_posx = (pr.get_screen_width() - self.tablero.get_columnas() * self.block_tam) // 2
