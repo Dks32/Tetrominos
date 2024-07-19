@@ -11,10 +11,10 @@ Simple clon de tetris hecho con Python y Raylib.
 - [x] Estado de Game Over
 - [x] Añadir Pausa al juego
 - [x] Menú de inicio
-- [ ] Mostrar siguiente pieza
+- [x] Mostrar siguiente pieza
 - [x] Puntaje
 - [ ] Base de datos de puntajes
-- [ ] Sistema de "bolsas" para la selección de piezas
+- [x] Sistema de "bolsas" para la selección de piezas
 - [ ] Mejorar gráficos
 	- [ ] Mejorar interfaz gráfica (fondos, colores, etc)
 	- [ ] Efectos gráficos (particulas, transiciones, destellos, etc)
