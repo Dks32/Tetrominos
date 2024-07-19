@@ -6,7 +6,7 @@ Simple clon de tetris hecho con Python y Raylib.
 
 - [x] Estado de Game Over
 - [x] Añadir Pausa al juego
-- [ ] Menú de inicio
+- [x] Menú de inicio
 - [ ] Mostrar siguiente pieza
 - [x] Puntaje
 - [ ] Base de datos de puntajes
