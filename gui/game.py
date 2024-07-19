@@ -11,30 +11,6 @@ class Game():
 		pr.set_target_fps(120)
 		pr.set_exit_key(0)
 
-		self.juego_nuevo()
-
-		# self.tablero = Tablero()
-		self.block_tam = 32
-		self.tablero_posx = (pr.get_screen_width() - self.tablero.get_columnas() * self.block_tam) // 2
-		self.tablero_posy = (pr.get_screen_height() - self.tablero.get_filas() * self.block_tam) // 2
-		self.tablero_width = self.tablero.get_columnas() * self.block_tam
-		self.tablero_height = self.tablero.get_filas() * self.block_tam
-
-		# self.tiempo = None
-		# self.pieza = None
-
-		# self.velocidad = .5
-
-		# self.puntaje = 0
-		# self.lineas = 0
-		# self.nivel = 0
-		# self.piezas_colocadas = 0
-		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
-
-		self.pause_mode = True
-		self.juego_activo = False
-		# self.game_over = False
-
 		# Definición de los menues
 		self.menu_inicio = [
 				{
@@ -66,11 +42,24 @@ class Game():
 				}
 			]
 		self.opciones = self.menu_inicio
+
+		self.juego_nuevo()
+
+		self.pause_mode = True
+		self.juego_activo = False
 		self.bandera_terminar = False
 
 
 	def juego_nuevo(self):
 		self.tablero = Tablero()
+		self.block_tam = 32
+		self.tablero_posx = (pr.get_screen_width() - self.tablero.get_columnas() * self.block_tam) // 2
+		self.tablero_posy = (pr.get_screen_height() - self.tablero.get_filas() * self.block_tam) // 2
+		self.tablero_width = self.tablero.get_columnas() * self.block_tam
+		self.tablero_height = self.tablero.get_filas() * self.block_tam
+
+		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
+
 		self.tiempo = None
 		self.pieza = None
 		self.velocidad = .5
@@ -150,7 +139,7 @@ class Game():
 					(pr.get_screen_width() - pr.measure_text(texto, 20)) // 2,
 					pr.get_screen_height()//2 + (item*40),
 					20,
-					pr.GRAY)
+					pr.WHITE)
 
 
 	def draw_info(self):
@@ -225,7 +214,9 @@ class Game():
 		self.pieza.set_pos((self.tablero.get_columnas() - len(self.pieza.get_shape()[0])) // 2, 0)
 
 		# GAME OVER (Si no hay espacio para mover una pieza nueva)
-		self.game_over = not self.validar_mov(self.pieza.get_shape(), self.pieza.get_pos()[0], self.pieza.get_pos()[1])
+		if not self.validar_mov(self.pieza.get_shape(), self.pieza.get_pos()[0], self.pieza.get_pos()[1]):
+			self.juego_activo = False
+			self.game_over = True
 
 
 	def fijar_pieza(self):
