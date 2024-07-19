@@ -7,8 +7,11 @@ from func import Tablero, COLORES, Pieza, PIEZAS
 class Game():
 	def __init__(self):
 		pr.init_window(600, 800, 'Tetrominos')
+		pr.set_target_fps(60)
+		pr.set_exit_key(0)
+
 		self.tablero = Tablero()
-		self.block_tam = 24
+		self.block_tam = 32
 		self.tablero_posx = (pr.get_screen_width() - self.tablero.get_columnas() * self.block_tam) // 2
 		self.tablero_posy = (pr.get_screen_height() - self.tablero.get_filas() * self.block_tam) // 2
 		self.tablero_width = self.tablero.get_columnas() * self.block_tam
@@ -19,16 +22,30 @@ class Game():
 
 		self.velocidad = .5
 
+		self.puntaje = 0
+		self.lineas = 0
+		self.nivel = 0
+		self.piezas_colocadas = 0
+		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
+
+		self.pause_mode = False
+
 
 	def mainloop(self):
 		while not pr.window_should_close():
-			self.update()
+			if self.pause_mode:
+				self.update_pause()
+			else:
+				self.update()
 			self.draw_frame()
 
 
 	def draw_frame(self):
 		pr.begin_drawing()
 		pr.clear_background(COLORES[0])
+
+		# Información de juego (puntaje, lineas...)
+		self.draw_info()
 
 		# Dibujar borde del tablero
 		pr.draw_rectangle_lines(
@@ -50,7 +67,33 @@ class Game():
 				offset_y = self.pieza.get_pos()[1]
 				self.draw_block(offset_x + x, offset_y + y, self.pieza.get_block(x, y))
 
+		# Mostrar mensaje en la pausa
+		if self.pause_mode:
+			pr.draw_rectangle(
+				self.tablero_posx - self.block_tam//4,
+				self.tablero_posy - self.block_tam//4,
+				self.tablero_width + self.block_tam//4 * 2,
+				self.tablero_height + self.block_tam//4 * 2,
+				pr.Color(0, 0, 0, 128))
+
+			pr.draw_text(
+					'En Pausa',
+					(pr.get_screen_width() - pr.measure_text('En Pausa', 40)) // 2,
+					pr.get_screen_height() // 2,
+					40,
+					pr.Color(255, 255, 255, 192))
+
+
 		pr.end_drawing()
+
+
+	def draw_info(self):
+		pr.draw_text(self.get_info_string(), self.info_pos_x, self.tablero_posy + self.tablero_height + 15, 20, pr.GRAY)
+
+
+	def get_info_string(self):
+		# return f'[ {self.nivel:>2} : {self.puntaje:>8} : {self.lineas:>5} : {self.piezas_colocadas:>5} ]'
+		return f'[ {self.nivel:>2} : {self.puntaje:>8} ]'
 
 
 	def draw_block(self, x, y, color):
@@ -75,9 +118,9 @@ class Game():
 			self.mover_abajo = True
 
 		# Entradas por teclado
-		# tecla = pr.get_key_pressed()
-		# if tecla != 0:
-		# 	print(tecla)
+		tecla = pr.get_key_pressed()
+		if tecla != 0:
+			print(tecla)
 
 		if pr.is_key_pressed(263): # Izquierda
 			mov = self.pieza.mover(-1, 0)
@@ -93,6 +136,13 @@ class Game():
 		if pr.is_key_pressed(265): # Arriba (rotación)
 			self.pieza.bloquear = False
 			mov = self.pieza.rotar()
+		if pr.is_key_pressed(256): # Esc (pausa)
+			self.pause_mode = not self.pause_mode
+
+
+	def update_pause(self):
+		if pr.is_key_pressed(256): # Esc (pausa)
+			self.pause_mode = not self.pause_mode
 
 
 	def cargar_pieza_nueva(self):
@@ -110,7 +160,16 @@ class Game():
 
 		self.pieza = None
 		self.cargar_pieza_nueva()
-		self.tablero.checkear_tablero()
+		lineas = self.tablero.checkear_tablero()
+
+		# Calculo de puntaje y nivel
+		puntos = 10 * (self.nivel + 1) 
+		puntos += len(lineas) * 100 * (self.nivel + 1)
+		self.puntaje += puntos
+		self.piezas_colocadas += 1
+		self.lineas += len(lineas)
+		self.nivel = self.lineas // 10
+		# print(f'[{len(lineas)}]{lineas}')
 
 
 	def validar_mov(self, shape, pos_x, pos_y):
