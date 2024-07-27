@@ -18,8 +18,12 @@ class Pieza():
 		return True
 
 
-	def rotar(self):
-		nshape = list(zip(*self.__shape[::-1]))
+	def rotar(self, invert=False):
+		if invert:
+			nshape = list(zip(*[i[::-1] for i in self.__shape]))
+		else:
+			nshape = list(zip(*self.__shape[::-1]))
+
 		if not self.__master.validar_mov(nshape, self.__pos[0], self.__pos[1]):
 			return
 		self.__shape = nshape
