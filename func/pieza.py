@@ -10,21 +10,25 @@ class Pieza():
 
 
 	def mover(self, x, y):
-		if not self.__master.validar_mov(self.__shape, self.__pos[0]+x, self.__pos[1]+y):
-			if y > 0:
-				self.__master.fijar_pieza()
-			return False
-
-		self.__pos[0] += x
-		self.__pos[1] += y
-		return True
-
-
-	def rotar(self, invert=False):
-		if invert:
-			nshape = list(zip(*[i[::-1] for i in self.__shape]))
+		# if not self.__master.validar_mov(self.__shape, self.__pos[0]+x, self.__pos[1]+y):
+		result = False
+		if self.__master.validar_mov(self.__shape, self.__pos[0] + x, self.__pos[1]):
+			self.__pos[0] += x
+			result = True
+		if self.__master.validar_mov(self.__shape, self.__pos[0], self.__pos[1] + y):
+			self.__pos[1] += y
+			result = True
 		else:
+			self.__master.fijar_pieza()
+
+		return result
+
+
+	def rotar(self, rot_horaria=True):
+		if rot_horaria:
 			nshape = list(zip(*self.__shape[::-1]))
+		else:
+			nshape = list(zip(*[i[::-1] for i in self.__shape]))
 
 		if not self.__master.validar_mov(nshape, self.__pos[0], self.__pos[1]):
 			return

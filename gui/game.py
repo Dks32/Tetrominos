@@ -3,15 +3,26 @@ import pyray as pr
 from func import Tablero, COLORES, Pieza, PIEZAS
 
 
-VELOCIDAD_BASE = 1
+VELOCIDAD_BASE = .5
+VELOCIDAD_TECLAS = .1
+CONTROLES = {
+	263: {'accion': 'mov_izq'},
+	262: {'accion': 'mov_der'},
+	264: {'accion': 'mov_abj'},
+	83: {'accion': 'rot_hor'},
+	265: {'accion': 'rot_hor'},
+	65: {'accion': 'rot_ant'}
+}
+
+KEY_SHAPE = [[65, 265, 83], [263, 264, 262]]
 
 
 class Game():
 	def __init__(self):
 		# Configuración del juego
 		self.bandera_terminar = False
-		self.show_fps = False
-		self.show_bag = False
+		self.show_fps = True
+		self.show_bag = True
 
 		# Definición de los menues
 		self.menu_inicio = [
@@ -47,7 +58,7 @@ class Game():
 
 		# Inicializar Raylib
 		pr.init_window(600, 800, 'Tetrominos')
-		pr.set_target_fps(60)
+		# pr.set_target_fps(60)
 		pr.set_exit_key(0)
 
 		# Inicializar juego
@@ -79,6 +90,11 @@ class Game():
 		self.velocidad = self.calcular_velocidad()
 
 		self.info_pos_x = (pr.get_screen_width() // 2) - (pr.measure_text(self.get_info_string(), 20) // 2)
+
+		# Agregar información de tiempo a las teclas para controlar la repetición
+		self.tiempo_tecla = 0
+		# for clave in CONTROLES:
+		# 	CONTROLES[clave]['tiempo'] = 0
 
 
 	def mainloop(self):
@@ -135,6 +151,17 @@ class Game():
 							self.block_tam // 2,
 							self.block_tam // 2,
 							pr.Color(255, 255, 255, 64))
+
+		# TECLADO
+		for y in range(len(KEY_SHAPE)):
+			for x in range(len(KEY_SHAPE[0])):
+				if KEY_SHAPE[y][x] != 0:
+					px = pr.get_screen_width() - (len(KEY_SHAPE[0]) * self.block_tam // 2) - 20 + (x * self.block_tam // 2)
+					py = pr.get_screen_height() - (len(KEY_SHAPE) * self.block_tam // 2) - 20 + (y * self.block_tam // 2)
+					if pr.is_key_down(KEY_SHAPE[y][x]):
+						pr.draw_rectangle(px, py, self.block_tam//2, self.block_tam//2, pr.Color(255,255,255,64))
+					else:
+						pr.draw_rectangle_lines(px, py, self.block_tam//2, self.block_tam//2, pr.Color(255,255,255,64))
 
 		# Mostrar Menu (Pausa | Game Over | Menú inicial)
 		if self.pause_mode or self.game_over or (not self.juego_activo):
@@ -202,21 +229,47 @@ class Game():
 			self.mover_abajo = True
 
 		# Esto solo lo utilizo para obtener los códigos de teclas
-		# tecla = pr.get_key_pressed()
-		# if tecla != 0:
-		# 	print(tecla)
+		tecla = pr.get_key_pressed()
+		if tecla != 0:
+			print(tecla)
 
 		# ENTRADAS DE TECLADO
-		if pr.is_key_pressed(263) or pr.is_key_pressed_repeat(263): # Izquierda
-			mov = self.pieza.mover(-1, 0)
-		if pr.is_key_pressed(262) or pr.is_key_pressed_repeat(262): # Derecha
-			mov = self.pieza.mover(1, 0)
-		if pr.is_key_pressed(264) or pr.is_key_pressed_repeat(264) or self.mover_abajo: # Abajo
+		tecla = pr.get_key_pressed()
+
+		mov_x, mov_y = 0, 0
+		rot = 0
+		accion = ''
+		for tecla in CONTROLES:
+			if not pr.is_key_down(tecla):
+				continue
+
+			if (tiempo - self.tiempo_tecla) > VELOCIDAD_TECLAS:
+				accion = CONTROLES[tecla]['accion']
+
+			if accion == 'mov_izq':
+				mov_x -= 1
+			elif accion == 'mov_der':
+				mov_x += 1
+			elif accion == 'mov_abj':
+				mov_y += 1
+			elif accion == 'rot_hor':
+				rot = 1
+			elif accion == 'rot_ant':
+				rot = 1
+
+
+		if rot != 0:
+			self.pieza.rotar(True if rot > 0 else False)
+
+		if accion != '':
+			self.tiempo_tecla = pr.get_time()
+			self.pieza.mover(mov_x, mov_y)
+
+
+		# Movimiento automático
+		if self.mover_abajo:
 			self.pieza.mover(0, 1)
-		if pr.is_key_pressed(65) or pr.is_key_pressed_repeat(265): # A (rotación antihoraria)
-			mov = self.pieza.rotar(invert=True)
-		if pr.is_key_pressed(83) or pr.is_key_pressed_repeat(265): # B (rotación horaria)
-			mov = self.pieza.rotar(invert=False)
+
 		if pr.is_key_pressed(256) or pr.is_key_pressed_repeat(266): # Esc (pausa)
 			self.pause_mode = True
 
@@ -325,3 +378,5 @@ class Game():
 	def nuevo_set(self):
 		self.bolsa = PIEZAS.copy()
 		shuffle(self.bolsa)
+
+
