@@ -8,9 +8,10 @@ VELOCIDAD_BASE = 1
 
 class Game():
 	def __init__(self):
-		pr.init_window(600, 800, 'Tetrominos')
-		pr.set_target_fps(60)
-		pr.set_exit_key(0)
+		# Configuración del juego
+		self.bandera_terminar = False
+		self.show_fps = False
+		self.show_bag = False
 
 		# Definición de los menues
 		self.menu_inicio = [
@@ -44,13 +45,16 @@ class Game():
 			]
 		self.opciones = self.menu_inicio
 
-		self.juego_nuevo()
+		# Inicializar Raylib
+		pr.init_window(600, 800, 'Tetrominos')
+		pr.set_target_fps(60)
+		pr.set_exit_key(0)
 
+		# Inicializar juego
+		self.juego_nuevo()
 		self.pause_mode = True
 		self.juego_activo = False
-		self.bandera_terminar = False
-		self.show_bag = False
-		self.show_fps = False
+
 
 
 	def juego_nuevo(self):
@@ -130,7 +134,7 @@ class Game():
 							py,
 							self.block_tam // 2,
 							self.block_tam // 2,
-							pr.Color(255, 255, 255, 32))
+							pr.Color(255, 255, 255, 64))
 
 		# Mostrar Menu (Pausa | Game Over | Menú inicial)
 		if self.pause_mode or self.game_over or (not self.juego_activo):
@@ -252,6 +256,11 @@ class Game():
 			for x in range(len(self.pieza.get_shape()[0])):
 				pos_x = x + self.pieza.get_pos()[0]
 				pos_y = y + self.pieza.get_pos()[1]
+
+				# Solo fijar bloques no vacios
+				if self.pieza.get_shape()[y][x] == 0:
+					continue
+
 				self.tablero.set_block(pos_x, pos_y, self.pieza.get_block(x, y) or self.tablero.get_block(pos_x, pos_y))
 
 		self.pieza = None
@@ -273,15 +282,28 @@ class Game():
 
 
 	def validar_mov(self, shape, pos_x, pos_y):
-		if pos_x < 0 or pos_x > (self.tablero.get_columnas() - len(shape[0])):
-			return False
-		if pos_y > (self.tablero.get_filas() - len(shape)):
-			return False
+		# if pos_x < 0 or pos_x > (self.tablero.get_columnas() - len(shape[0])):
+			# return False
+		# if pos_y > (self.tablero.get_filas() - len(shape)):
+			# return False
+		tab_cols = self.tablero.get_columnas()
+		tab_fils = self.tablero.get_filas()
 
+		# Movimiento
 		for y in range(len(shape)):
 			for x in range(len(shape[0])):
-				if self.tablero.get_block(x + pos_x, y + pos_y) and shape[y][x]:
-					return False
+				if shape[y][x] != 0: # Solo evaluar los bloques NO vacios de las piezas
+					bpos_x = pos_x + x
+					bpos_y = pos_y + y
+					# Si la pieza sale de los límites del tablero
+					if bpos_x < 0 or bpos_x > (tab_cols - 1):
+						return False
+					if bpos_y > (tab_fils - 1):
+						return False
+
+					# Si hay otro bloque en la misma posición
+					if self.tablero.get_block(bpos_x, bpos_y):
+						return False
 
 		return True
 
