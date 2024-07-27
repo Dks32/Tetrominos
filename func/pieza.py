@@ -11,6 +11,8 @@ class Pieza():
 
 	def mover(self, x, y):
 		if not self.__master.validar_mov(self.__shape, self.__pos[0]+x, self.__pos[1]+y):
+			if y > 0:
+				self.__master.fijar_pieza()
 			return False
 
 		self.__pos[0] += x

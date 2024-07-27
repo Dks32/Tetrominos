@@ -202,27 +202,20 @@ class Game():
 			self.mover_abajo = True
 
 		# Esto solo lo utilizo para obtener los códigos de teclas
-		tecla = pr.get_key_pressed()
-		if tecla != 0:
-			print(tecla)
+		# tecla = pr.get_key_pressed()
+		# if tecla != 0:
+		# 	print(tecla)
 
 		# ENTRADAS DE TECLADO
 		if pr.is_key_pressed(263) or pr.is_key_pressed_repeat(263): # Izquierda
 			mov = self.pieza.mover(-1, 0)
-			self.pieza.bloquear = False
 		if pr.is_key_pressed(262) or pr.is_key_pressed_repeat(262): # Derecha
 			mov = self.pieza.mover(1, 0)
-			self.pieza.bloquear = False
 		if pr.is_key_pressed(264) or pr.is_key_pressed_repeat(264) or self.mover_abajo: # Abajo
-			if self.pieza.bloquear == False and self.pieza.mover(0, 1) == False:
-				self.fijar_pieza()
-			else:
-				self.pieza.bloquear = False
+			self.pieza.mover(0, 1)
 		if pr.is_key_pressed(65) or pr.is_key_pressed_repeat(265): # A (rotación antihoraria)
-			self.pieza.bloquear = False
 			mov = self.pieza.rotar(invert=True)
 		if pr.is_key_pressed(83) or pr.is_key_pressed_repeat(265): # B (rotación horaria)
-			self.pieza.bloquear = False
 			mov = self.pieza.rotar(invert=False)
 		if pr.is_key_pressed(256) or pr.is_key_pressed_repeat(266): # Esc (pausa)
 			self.pause_mode = True
